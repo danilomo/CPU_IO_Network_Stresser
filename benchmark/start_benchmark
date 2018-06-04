@@ -23,9 +23,9 @@ io_benchmark = sh.Command("./iobenchmark.sh").bake( duration, io_limit )
 net_benchmark  = sh.Command("./netbenchmark.sh").bake( duration, net_limit, server )
 
 
-cpu_benchmark = cpu_benchmark if int( cpu_limit ) > 0 else empty
-net_benchmark = net_benchmark if int( net_limit ) > 0 else empty
-io_benchmark  = io_benchmark  if int( io_limit  ) > 0 else empty
+cpu_benchmark = cpu_benchmark if int( cpu_limit ) == 0 else empty
+net_benchmark = net_benchmark if int( net_limit ) == 0 else empty
+io_benchmark  = io_benchmark  if int( io_limit  ) == 0 else empty
 
 commands = [ cpu_benchmark, io_benchmark, net_benchmark ]
 
