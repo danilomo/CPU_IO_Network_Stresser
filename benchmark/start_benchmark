@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+import sh
+import sys
+
+class EmptyCommand:
+    def __call__( self, _bg = False ):
+        return self
+
+    def wait( self ):
+        pass
+
+empty = EmptyCommand()
+
+duration  = sys.argv[1]
+cpu_limit = sys.argv[2]
+io_limit  = sys.argv[3]
+net_limit = sys.argv[4]
+server    = sys.argv[5]
+
+cpu_benchmark = sh.stress_ng.bake( "--cpu", "1", "--cpu-method", "matrixprod", "--metrics-brief", "--perf", "--cpu-load", cpu_limit, "-t", duration )
+io_benchmark = sh.Command("./iobenchmark.sh").bake( duration, io_limit )
+net_benchmark  = sh.Command("./netbenchmark.sh").bake( duration, net_limit, server )
+
+
+cpu_benchmark = cpu_benchmark if int( cpu_limit ) > 0 else empty
+net_benchmark = net_benchmark if int( net_limit ) > 0 else empty
+io_benchmark  = io_benchmark  if int( io_limit  ) > 0 else empty
+
+commands = [ cpu_benchmark, io_benchmark, net_benchmark ]
+
+processes = [ c( _bg = True ) for c in commands ]
+
+[ p.wait() for p in processes ]
